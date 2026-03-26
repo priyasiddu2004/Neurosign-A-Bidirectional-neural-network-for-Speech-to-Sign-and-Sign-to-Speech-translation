@@ -1,0 +1,161 @@
+@use '../../../../theme/breakpoints' as breakpoints;
+
+:host {
+  display: flex;
+}
+
+.interface {
+  display: grid;
+  width: 100%;
+  grid-template-areas: 'signed spoken signwriting';
+  grid-template-columns: 50% 100px auto;
+
+  @media #{breakpoints.$breakpoint-lt-sm} {
+    grid-template-areas: 'signed signed' 'spoken signwriting';
+    grid-template-columns: 100px auto;
+  }
+
+  app-sign-writing {
+    border-inline-end: 1px solid var(--app-divider-color);
+
+    @media #{breakpoints.$breakpoint-lt-sm} {
+      height: 235px;
+    }
+  }
+}
+
+.sign-language {
+  grid-area: signed;
+}
+
+.translation-text {
+  font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+  padding: 20px 58px 20px 24px;
+  color: #878787;
+  font-size: 24px;
+  line-height: 32px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+
+  :first-child {
+    flex-grow: 1;
+  }
+
+  .placeholder-text {
+    color: #ccc;
+    font-style: italic;
+    font-size: 18px;
+  }
+}
+
+app-upload {
+  text-align: center;
+  padding: 43px 16px 65px;
+  width: 100%;
+}
+
+app-video {
+  width: 100%;
+}
+
+.sign-detection-status {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.signing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  
+  &.signing {
+    background-color: #4CAF50;
+    animation: pulse 1.5s infinite;
+  }
+  
+  &.idle {
+    background-color: #9E9E9E;
+  }
+}
+
+.confidence {
+  font-weight: 500;
+  color: #2196F3;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.teachable-section {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 0 20px;
+
+  .teachable-button {
+    --background: linear-gradient(45deg, #667eea, #764ba2);
+    --color: white;
+    --border-radius: 25px;
+    --padding-start: 40px;
+    --padding-end: 40px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 200px;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+    }
+
+    ion-icon {
+      font-size: 1.2rem;
+      margin-right: 8px;
+    }
+
+    @media #{breakpoints.$breakpoint-lt-md} {
+      --padding-start: 30px;
+      --padding-end: 30px;
+      --padding-top: 15px;
+      --padding-bottom: 15px;
+      font-size: 1rem;
+      min-width: 180px;
+    }
+
+    @media #{breakpoints.$breakpoint-lt-sm} {
+      --padding-start: 25px;
+      --padding-end: 25px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+      font-size: 0.9rem;
+      min-width: 160px;
+    }
+  }
+}

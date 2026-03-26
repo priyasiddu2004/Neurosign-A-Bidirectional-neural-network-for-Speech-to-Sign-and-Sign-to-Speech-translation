@@ -1,0 +1,44 @@
+import {Routes} from '@angular/router';
+// NotFoundComponent removed
+import {provideStates} from '@ngxs/store';
+import {TranslateState} from './modules/translate/translate.state';
+import {LanguageDetectionService} from './modules/translate/language-detection/language-detection.service';
+import {MediaPipeLanguageDetectionService} from './modules/translate/language-detection/mediapipe.service';
+import {MainComponent} from './pages/main.component';
+
+export const routes: Routes = [
+  // Benchmark removed
+  // About and Legal removed
+  {
+    path: '',
+    component: MainComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/translate/translate.component').then(m => m.TranslateComponent),
+        providers: [
+          provideStates([TranslateState]),
+          {provide: LanguageDetectionService, useClass: MediaPipeLanguageDetectionService},
+        ],
+      },
+      {
+        path: 'translate',
+        redirectTo: '',
+      },
+      {
+        path: 'teachable',
+        loadComponent: () => import('./pages/translate/teachable/teachable.component').then(m => m.TeachableComponent),
+      },
+      // {
+      //   path: 'converse',
+      //   loadChildren: () => import('./tab2/tab2.module').then(m => m.Tab2PageModule),
+      // },
+      // {
+      //   path: 'avatars',
+      //   loadChildren: () => import('./tab3/tab3.module').then(m => m.Tab3PageModule),
+      // },
+      // Settings removed
+    ],
+  },
+  {path: '**', redirectTo: ''},
+];

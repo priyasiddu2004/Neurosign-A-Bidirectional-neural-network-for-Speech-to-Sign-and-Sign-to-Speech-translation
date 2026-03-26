@@ -1,0 +1,161 @@
+<ion-header [translucent]="true" class="custom-header">
+  <ion-toolbar class="custom-toolbar">
+    <ion-title class="custom-title">
+      <div class="title-container">
+        <div class="title-main">Bidirectional neural network for speech-to-sign and sign-to-speech translation</div>
+        <div class="title-sub">for the Deaf and Mute Peoples Using Sign Language and Speech Translation</div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="custom-content">
+  <div class="container">
+    <!-- Input mode buttons removed - only text input needed for text-to-sign -->
+
+   
+
+    <!-- Text-to-Sign section -->
+    <div id="text-to-sign-card">
+      <div class="section-header">
+        <h3>Text to Sign Translation</h3>
+        <p>Convert your text into sign language animations and gestures</p>
+      </div>
+      
+      <app-drop-pose-file>
+        <div id="translation-card">
+          <!-- Direction toggle button -->
+          <!-- Direction toggle removed - only text-to-sign mode -->
+
+          <div id="content">
+            <!-- Text-to-sign mode -->
+            <app-spoken-to-signed />
+          </div>
+        </div>
+      </app-drop-pose-file>
+    </div>
+
+    <!-- Sign-to-text section -->
+    <div id="sign-to-text-card">
+      <div class="section-header">
+        <h3>Sign to Text Detection</h3>
+        <p>Use your camera to detect sign language and convert it to text</p>
+      </div>
+      
+      <div class="sign-detection-container">
+        <div class="camera-section">
+          <canvas id="sign-detection-canvas" class="camera-canvas"></canvas>
+          
+          <!-- Detection Mode Selection -->
+          <div class="detection-mode-selection">
+            <div class="mode-buttons">
+              <ion-button 
+                (click)="setDetectionMode('words')" 
+                [fill]="detectionMode === 'words' ? 'solid' : 'outline'"
+                color="primary"
+                class="mode-button">
+                <ion-icon name="text" slot="start"></ion-icon>
+                Words
+              </ion-button>
+              <ion-button 
+                (click)="setDetectionMode('letters')" 
+                [fill]="detectionMode === 'letters' ? 'solid' : 'outline'"
+                color="secondary"
+                class="mode-button">
+                <ion-icon name="keypad" slot="start"></ion-icon>
+                Letters
+              </ion-button>
+            </div>
+          </div>
+
+          <div class="camera-controls">
+            <ion-button 
+              (click)="startSignDetection()" 
+              [disabled]="signDetectionRunning"
+              fill="solid" 
+              color="primary">
+              <ion-icon name="videocam" slot="start"></ion-icon>
+              Start Detection
+            </ion-button>
+            <ion-button 
+              (click)="stopSignDetection()" 
+              [disabled]="!signDetectionRunning"
+              fill="outline" 
+              color="medium">
+              <ion-icon name="stop" slot="start"></ion-icon>
+              Stop
+            </ion-button>
+            <ion-button 
+              (click)="clearDetectedText()" 
+              fill="clear" 
+              color="danger">
+              <ion-icon name="trash" slot="start"></ion-icon>
+              Clear
+            </ion-button>
+            <ion-button 
+              (click)="toggleAutoSpeak()" 
+              [fill]="autoSpeak ? 'solid' : 'outline'"
+              [color]="autoSpeak ? 'success' : 'medium'">
+              <ion-icon name="volume-high" slot="start"></ion-icon>
+              {{ autoSpeak ? 'Auto-Speak ON' : 'Auto-Speak OFF' }}
+            </ion-button>
+          </div>
+        </div>
+        
+        <div class="detection-results">
+          <div class="current-detection">
+            <h4>Current Detection:</h4>
+            <div class="detection-label" 
+                 [class.stable-gesture]="currentSignLabel && currentSignLabel !== 'Hold gesture steady...' && currentSignLabel !== 'No valid gesture detected'"
+                 [class.holding-gesture]="currentSignLabel === 'Hold gesture steady...'"
+                 [class.invalid-gesture]="currentSignLabel === 'No valid gesture detected'"
+                 [class.b-sign-detected]="currentSignLabel === 'B'">
+              {{ currentSignLabel || 'No sign detected' }}
+              <span *ngIf="currentSignLabel === 'B'" class="b-sign-indicator">✓ Perfect B Sign!</span>
+            </div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" 
+                   [style.width.%]="(currentConfidence * 100)"
+                   [class.high-confidence]="currentConfidence >= 0.85"
+                   [class.medium-confidence]="currentConfidence >= 0.7 && currentConfidence < 0.85"
+                   [class.low-confidence]="currentConfidence < 0.7">
+              </div>
+            </div>
+            <div class="confidence-text" 
+                 [class.high-confidence]="currentConfidence >= 0.85"
+                 [class.medium-confidence]="currentConfidence >= 0.7 && currentConfidence < 0.85"
+                 [class.low-confidence]="currentConfidence < 0.7">
+              {{ (currentConfidence * 100).toFixed(0) }}% confidence
+              <span *ngIf="currentConfidence >= 0.85" class="confidence-indicator">✓ High Quality</span>
+              <span *ngIf="currentConfidence >= 0.7 && currentConfidence < 0.85" class="confidence-indicator">⚠ Medium Quality</span>
+              <span *ngIf="currentConfidence < 0.7 && currentConfidence > 0" class="confidence-indicator">⚠ Low Quality</span>
+            </div>
+            
+            <!-- Capture Timer -->
+            <div class="capture-timer" *ngIf="signDetectionRunning">
+              <div class="timer-label">Next capture in:</div>
+              <div class="timer-countdown">{{ captureCountdown }}s</div>
+              <div class="timer-bar">
+                <div class="timer-fill" [style.width.%]="((5000 - captureCountdown * 1000) / 5000) * 100"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="accumulated-text">
+            <h4>Detected Text:</h4>
+            <div class="text-output-container">
+              <div class="text-output">{{ detectedText || 'Sign language will appear here...' }}</div>
+              <app-text-to-speech 
+                [text]="detectedText" 
+                [lang]="'en'"
+                class="tts-button">
+              </app-text-to-speech>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</ion-content>

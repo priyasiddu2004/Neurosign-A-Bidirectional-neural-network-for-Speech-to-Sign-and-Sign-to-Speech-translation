@@ -1,0 +1,100 @@
+@if (inputMode$ | async; as inputMode) {
+  @switch (inputMode) {
+    @case ('upload') {
+      @if (videoState$ | async; as videoState) {
+        @if (!videoState.src) {
+          <app-upload />
+        } @else {
+          <ng-container *ngTemplateOutlet="translationTemplate" />
+        }
+      }
+    }
+    @case ('webcam') {
+      <ng-container *ngTemplateOutlet="translationTemplate" />
+    }
+  }
+}
+
+<ng-template #translationTemplate>
+  <div class="interface">
+    <div class="sign-language">
+      <app-video [displayControls]="false" [displayFps]="false" />
+    </div>
+
+    <app-sign-writing />
+   
+
+    <div class="translation-text">
+      @if (spokenLanguageText$ | async; as translation) {
+        <div><b>Detected sequence:</b> {{ translation }}</div>
+      } @else {
+        <div class="placeholder-text">Sign language will appear here...</div>
+      }
+
+     
+      
+      <!-- Teachable Machine standalone (only TM) -->
+      <div style="margin-top:12px;">
+
+        
+        <h4 style="margin:0 0 8px 0;">Teachable Machine (local)</h4>
+        <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+          <canvas id="tm-canvas" style="border-radius:12px; background:#f4f4f8; box-shadow:0 2px 10px rgba(0,0,0,.07);"></canvas>
+          <div>
+            <div><b>TM Label:</b> {{ tmLabel || '...' }}</div>
+            <div style="margin-top:8px; display:flex; gap:10px;">
+              <ion-button size="small" fill="outline" (click)="startTeachableMachine()">Start TM</ion-button>
+              <ion-button size="small" fill="clear" color="medium" (click)="stopTeachableMachine()">Stop</ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div><b>Current sign:</b> {{ currentSignText$ | async }}</div>
+
+      <!-- Sign detection status - always visible -->
+      <div class="sign-detection-status">
+        @if (isSigning$ | async) {
+          <div class="signing-indicator">
+            <span class="status-dot signing"></span>
+            <span>Detecting signs...</span>
+            @if (confidence$ | async; as confidence) {
+              <span class="confidence">({{ (confidence * 100).toFixed(0) }}%)</span>
+            }
+          </div>
+        } @else {
+          <div class="signing-indicator">
+            <span class="status-dot idle"></span>
+            <span>Ready for sign input</span>
+          </div>
+        }
+      </div>
+         <!-- Teachable Machine Button -->
+     <div class="teachable-section">
+      <ion-button (click)="navigateToTeachable()" fill="solid" color="primary" size="large" class="teachable-button">
+        <ion-icon name="school" slot="start"></ion-icon>
+        Teachable Machine
+      </ion-button>
+    </div>
+
+      @if (spokenLanguageText$ | async; as translation) {
+        @if (translation !== '') {
+          <div>
+            <app-text-to-speech [lang]="spokenLanguage$ | async" [text]="translation"></app-text-to-speech>
+
+            <ion-button
+              class="circle-icon"
+              fill="clear"
+              shape="round"
+              color="dark"
+              (click)="copyTranslation()"
+              [attr.aria-label]="'translate.signed-to-spoken.actions.copy' | transloco"
+              [matTooltip]="'translate.signed-to-spoken.actions.copy' | transloco"
+              [matTooltipPosition]="'above'">
+              <ion-icon name="copy-outline" slot="icon-only" />
+            </ion-button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</ng-template>
