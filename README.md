@@ -117,8 +117,7 @@ python main.py
 
 ## 👩‍💻 Author
 
-**Your Name**
-  PRIYA H S
+    PRIYA H S
 ---
 
 ## 📜 License
